@@ -1,0 +1,23 @@
+{
+  "name": "flutterweb_app",
+  "version": "1.0.0",
+  "description": "practise",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BhatiPankaj/flutter_WebApp.git"
+  },
+  "author": "pankaj",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BhatiPankaj/flutter_WebApp/issues"
+  },
+  "homepage": "https://github.com/BhatiPankaj/flutter_WebApp#readme"
+}
