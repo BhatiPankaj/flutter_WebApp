@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
   runApp(MyApp());
@@ -10,6 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -65,6 +67,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    CollectionReference users = FirebaseFirestore.instance.collection('movies');
+    void addUser() {
+      users
+          .add({
+            'value': '$_counter',
+            'name': 'Pankaj Bhati',
+            'age': '22'
+          })
+          .then((value) => print("user added"))
+          .catchError((error) => print("Failed to add user: $error"));
+    }
+
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -80,35 +94,80 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+        child:
+        // Column(
+        //   // Column is also a layout widget. It takes a list of children and
+        //   // arranges them vertically. By default, it sizes itself to fit its
+        //   // children horizontally, and tries to be as tall as its parent.
+        //   //
+        //   // Invoke "debug painting" (press "p" in the console, choose the
+        //   // "Toggle Debug Paint" action from the Flutter Inspector in Android
+        //   // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
+        //   // to see the wireframe for each widget.
+        //   //
+        //   // Column has various properties to control how it sizes itself and
+        //   // how it positions its children. Here we use mainAxisAlignment to
+        //   // center the children vertically; the main axis here is the vertical
+        //   // axis because Columns are vertical (the cross axis would be
+        //   // horizontal).
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   crossAxisAlignment: CrossAxisAlignment.center,
+        //   children: <Widget>[
+            // Text(
+            //   'You have pushed the button this many times: ${FirebaseFirestore.instance.collection("movies").doc("zHN56Qp9kdSlQwVVU1B4").get().data['name']}',
+            // ),
+            // FutureBuilder<DocumentSnapshot>(
+            //   future: users.doc("PydD5ew78I5FmboIcmGi").get(),
+            //   builder: (BuildContext context,
+            //       AsyncSnapshot<DocumentSnapshot> snapshot) {
+            //     // return Text("${data['name']}");
+            //     if (snapshot.hasError) {
+            //       return Text("Something went wrong");
+            //     }
+            //
+            //     if (snapshot.connectionState == ConnectionState.done) {
+            //       Map<String, dynamic> data = snapshot.data.data();
+            //       // print("${data.values}");
+            //       return Text("${data['value']}");
+            //     }
+            //     // setState(() {
+            //     //
+            //     // });
+            //     return RefreshProgressIndicator();
+            //   },
+            // ),
+            // Text(
+            //   '$_counter',
+            //   style: Theme.of(context).textTheme.headline4,
+            // ),
+
+            StreamBuilder<QuerySnapshot>(
+              stream: users.limit(10).snapshots(includeMetadataChanges: true),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+                if (snapshot.hasError) {
+                  return Text('Something went wrong');
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                return new ListView(
+                  // padding: EdgeInsets.all(0),
+                  shrinkWrap: true,
+                  children: snapshot.data.docs.map((DocumentSnapshot document) {
+                    return ListTile(
+                      title: Text(document.data()['name']),
+                      subtitle: Text(document.data()['value']),
+                    );
+                  }).toList(),
+                );
+              },
+            )
+        //   ],
+        // ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () => {_incrementCounter(), addUser()},
         tooltip: 'Increment',
         child: Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
